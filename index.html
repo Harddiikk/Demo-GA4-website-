@@ -5,7 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI-Powered E-Commerce Demo</title>
 
-  
+<!-- UTM/GCLID Capture Script - FIXED -->
+<script>
+window.utmGclidData = {};
+(() => {
+  function getParam(name) {
+    name = name.replace(/[[]/, '\\[').replace(/[\]]/, '\\]');
+    const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    const results = regex.exec(window.location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  }
+  const fields = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','gclid'];
+  fields.forEach(f => window.utmGclidData[f] = getParam(f));
+  window.utmGclidData.first_landing_url = window.location.href;
+  window.utmGclidData.first_touch_ts = new Date().toISOString();
+})();
+</script>
+
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q4NV7NL9DC"></script>
 <script>
@@ -16,14 +32,13 @@
   gtag('config', 'G-Q4NV7NL9DC');
 </script>
 
-   <!-- Google Tag Manager -->
+<!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-W5WZ4SM4');</script>
 <!-- End Google Tag Manager -->
-
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -229,6 +244,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
              window.dataLayer = window.dataLayer || [];
              function gtag(){dataLayer.push(arguments);}
 
+            // --- TALLY FORM UTM/GCLID INJECTION - FIXED ---
+            setTimeout(function() {
+                const tallyIframe = document.querySelector('[data-tally-src]');
+                if (!tallyIframe) return;
+                const params = window.utmGclidData;
+                
+                // build UTM/gclid param string
+                let query = '';
+                for (const k in params) {
+                    if (params[k]) query += `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}&`;
+                }
+                if (query.endsWith('&')) query = query.slice(0, -1);
+                
+                // get original URL and add params properly
+                const originalSrc = tallyIframe.getAttribute('data-tally-src');
+                const separator = originalSrc.includes('?') ? '&' : '?';
+                const newSrc = query ? `${originalSrc}${separator}${query}` : originalSrc;
+                
+                tallyIframe.setAttribute('src', newSrc);
+                console.log('Tally form updated with UTM data:', params);
+            }, 100);
+
             // --- Gemini Powered Webchat ---
             const chatWindow = document.getElementById('chat-window');
             const chatIcon = document.getElementById('chat-icon-trigger');
@@ -240,13 +277,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             let chatHistory = []; // To maintain conversation context
             let isChatOpen = false;
 
+            // --- Campaign Data for Chatbot ---
+            const campaign = window.utmGclidData;
+            const chatbotContext = {
+                ...campaign,
+                conversation_id: Date.now().toString() + Math.floor(Math.random()*1000),
+                channel: "chatbot"
+            };
+            console.log('Chatbot context with campaign data:', chatbotContext);
+
             // --- START: Chatbot Customization ---
-            // Modify this prompt to change the chatbot's persona, instructions, and knowledge.
             const systemPrompt = `
                 You are a friendly and helpful e-commerce assistant for "E-Commerce Demo".
                 Your goal is to answer customer questions about products, help them book meetings, and provide general support.
                 - Keep your answers concise and friendly.
-                - If you don't know an answer, politely say so and suggest they email contact@example.com.
+                - If you don't know an answer, politely say so and suggest they email specmedia0524@gmail.com.
                 - The products available are: Premium Gadget ($199.99), Eco-Friendly Bottle ($24.99), and Comfort T-Shirt ($39.99).
                 - To book a meeting, direct users to the "Book a Meeting" section on the page.
             `;
@@ -261,7 +306,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     if (chatHistory.length === 0) {
                         gtag('event', 'chat_started', {
                             'event_category': 'engagement',
-                            'event_label': 'AI Chat Initiated'
+                            'event_label': 'AI Chat Initiated',
+                            'utm_source': campaign.utm_source || 'direct',
+                            'utm_campaign': campaign.utm_campaign || 'none'
                         });
                     }
                     chatWindow.classList.remove('hidden');
@@ -283,11 +330,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 chatHistory.push({ role: 'user', parts: [{ text: userMessage }] });
                 chatInput.value = '';
 
-                // Push GA4 event for user message
+                // Push GA4 event for user message with campaign data
                 gtag('event', 'message_sent', {
                     'event_category': 'chat',
                     'event_label': 'User Message',
-                    'message_length': userMessage.length
+                    'message_length': userMessage.length,
+                    'utm_source': campaign.utm_source || 'direct',
+                    'utm_campaign': campaign.utm_campaign || 'none'
                 });
 
                 // Add typing indicator
@@ -332,10 +381,21 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             }
         });
 
-        // --- This is a placeholder for future cart functionality. ---
+        // --- Cart functionality with campaign tracking ---
         function addToCart(productId) {
-            console.log(`Product ${productId} added to cart.`);
-            alert(`Product ${productId} has been added to your cart! (Frontend-only demo)`);
+            const campaign = window.utmGclidData;
+            console.log(`Product ${productId} added to cart with campaign data:`, campaign);
+            
+            // Push GA4 event for add to cart with campaign data
+            gtag('event', 'add_to_cart', {
+                'event_category': 'ecommerce',
+                'event_label': `Product ${productId}`,
+                'value': productId === 1 ? 199.99 : productId === 2 ? 24.99 : 39.99,
+                'utm_source': campaign.utm_source || 'direct',
+                'utm_campaign': campaign.utm_campaign || 'none'
+            });
+            
+            alert(`Product ${productId} has been added to your cart! (Campaign: ${campaign.utm_campaign || 'Direct'})`);
         }
 
         // --- Gemini API Integration ---
@@ -389,7 +449,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             });
         });
 
+        // --- Debug UTM Data (remove in production) ---
+        setTimeout(() => {
+            console.log('Current UTM/GCLID data:', window.utmGclidData);
+        }, 1000);
+
     </script>
 </body>
 </html>
-
