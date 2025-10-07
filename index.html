@@ -22,31 +22,39 @@ window.utmGclidData = {};
 })();
 </script>
 
-<!-- Google tag (gtag.js) -->
+<!-- Google tag (gtag.js) - Main GA4 -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-Q4NV7NL9DC"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-Q4NV7NL9DC');
-</script>
-<!-- Google tag (gtag.js) test client -->
+<!-- Google tag (gtag.js) - Test GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VWZE3JEQVQ"></script>
+<!-- Google Ads Test Account -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17618176239"></script>
+
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'AW-17618176239');
+  // Configure all tracking IDs
+  gtag('config', 'G-Q4NV7NL9DC');  // Main GA4
+  gtag('config', 'G-VWZE3JEQVQ');  // Test GA4
+  gtag('config', 'AW-17618176239'); // Google Ads Test
 </script>
-<!-- Google Tag Manager -->
+
+<!-- Google Tag Manager - Main -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-W5WZ4SM4');</script>
-<!-- End Google Tag Manager -->
+<!-- End Google Tag Manager - Main -->
+
+<!-- Google Tag Manager - Test -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-TXX6KR6Z');</script>
+<!-- End Google Tag Manager - Test -->
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -106,10 +114,15 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </head>
 <body class="bg-gray-100 text-gray-800">
 
- <!-- Google Tag Manager (noscript) -->
+ <!-- Google Tag Manager (noscript) - Main -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W5WZ4SM4"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
+<!-- End Google Tag Manager (noscript) - Main -->
+
+<!-- Google Tag Manager (noscript) - Test -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TXX6KR6Z"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) - Test -->
 
     <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -203,7 +216,23 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <section id="contact" class="text-center py-16">
             <h2 class="text-3xl font-bold mb-4">Get In Touch</h2>
             <p class="max-w-xl mx-auto mb-6">Have questions? Feel free to reach out directly.</p>
-            <a href="mailto:specmedia0524@gmail.com" class="btn-primary text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition-transform inline-block">Email Us</a>
+            <a href="mailto:specmedia0524@gmail.com" 
+               onclick="gtag('event', 'email_click', {
+                 'event_category': 'contact',
+                 'event_label': 'email_button',
+                 'utm_source': window.utmGclidData.utm_source || 'direct',
+                 'utm_campaign': window.utmGclidData.utm_campaign || 'none'
+               }); 
+               dataLayer.push({
+                 'event': 'email_click',
+                 'event_category': 'contact',
+                 'event_label': 'email_button',
+                 'utm_source': window.utmGclidData.utm_source || 'direct',
+                 'utm_campaign': window.utmGclidData.utm_campaign || 'none'
+               });" 
+               class="btn-primary text-white font-bold py-3 px-6 rounded-lg shadow-lg transform hover:scale-105 transition-transform inline-block">
+               Email Us
+            </a>
         </section>
     </main>
 
@@ -248,11 +277,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // This function is still needed for gtag() to exist when called, even if GTM is the one defining it.
-             window.dataLayer = window.dataLayer || [];
-             function gtag(){dataLayer.push(arguments);}
+            // Ensure dataLayer and gtag exist
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
 
-            // --- TALLY FORM UTM/GCLID INJECTION - FIXED ---
+            // Push UTM data to dataLayer for GTM access
+            window.dataLayer.push({
+                'event': 'utm_captured',
+                'utm_data': window.utmGclidData
+            });
+
+            // --- TALLY FORM UTM/GCLID INJECTION ---
             setTimeout(function() {
                 const tallyIframe = document.querySelector('[data-tally-src]');
                 if (!tallyIframe) return;
@@ -272,6 +307,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 
                 tallyIframe.setAttribute('src', newSrc);
                 console.log('Tally form updated with UTM data:', params);
+
+                // Track form ready to both gtag and dataLayer
+                gtag('event', 'form_ready', {
+                    'event_category': 'lead_generation',
+                    'event_label': 'tally_form_ready',
+                    'utm_source': params.utm_source || 'direct',
+                    'utm_campaign': params.utm_campaign || 'none'
+                });
+
+                dataLayer.push({
+                    'event': 'form_ready',
+                    'event_category': 'lead_generation',
+                    'event_label': 'tally_form_ready',
+                    'utm_source': params.utm_source || 'direct',
+                    'utm_campaign': params.utm_campaign || 'none'
+                });
             }, 100);
 
             // --- Gemini Powered Webchat ---
@@ -310,13 +361,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     chatWindow.classList.add('hidden');
                     chatIcon.classList.remove('hidden');
                 } else {
-                    // Push GA4 event when chat is opened for the first time
+                    // Push event to both gtag and dataLayer when chat is opened
                     if (chatHistory.length === 0) {
-                        gtag('event', 'chat_started', {
+                        const chatData = {
                             'event_category': 'engagement',
                             'event_label': 'AI Chat Initiated',
                             'utm_source': campaign.utm_source || 'direct',
                             'utm_campaign': campaign.utm_campaign || 'none'
+                        };
+
+                        gtag('event', 'chat_started', chatData);
+                        dataLayer.push({
+                            'event': 'chat_started',
+                            ...chatData
                         });
                     }
                     chatWindow.classList.remove('hidden');
@@ -338,13 +395,40 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 chatHistory.push({ role: 'user', parts: [{ text: userMessage }] });
                 chatInput.value = '';
 
-                // Push GA4 event for user message with campaign data
-                gtag('event', 'message_sent', {
+                // Check if message indicates meeting booking intent
+                if (userMessage.toLowerCase().includes('meeting') || 
+                    userMessage.toLowerCase().includes('book') ||
+                    userMessage.toLowerCase().includes('schedule') ||
+                    userMessage.toLowerCase().includes('appointment')) {
+                    
+                    const conversionData = {
+                        'event_category': 'lead_generation',
+                        'event_label': 'chatbot_meeting_intent',
+                        'utm_source': campaign.utm_source || 'direct',
+                        'utm_campaign': campaign.utm_campaign || 'none'
+                    };
+
+                    // Track chat conversion to both systems
+                    gtag('event', 'chat_conversion', conversionData);
+                    dataLayer.push({
+                        'event': 'chat_conversion',
+                        ...conversionData
+                    });
+                }
+
+                // Track message sent to both systems
+                const messageData = {
                     'event_category': 'chat',
                     'event_label': 'User Message',
                     'message_length': userMessage.length,
                     'utm_source': campaign.utm_source || 'direct',
                     'utm_campaign': campaign.utm_campaign || 'none'
+                };
+
+                gtag('event', 'message_sent', messageData);
+                dataLayer.push({
+                    'event': 'message_sent',
+                    ...messageData
                 });
 
                 // Add typing indicator
@@ -359,10 +443,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     appendMessage(aiResponse, 'ai');
                     chatHistory.push({ role: 'model', parts: [{ text: aiResponse }] });
                     
-                    // Push GA4 event for AI response
-                    gtag('event', 'ai_response_received', {
+                    // Track AI response to both systems
+                    const responseData = {
                         'event_category': 'chat',
                         'event_label': 'AI Response'
+                    };
+
+                    gtag('event', 'ai_response_received', responseData);
+                    dataLayer.push({
+                        'event': 'ai_response_received',
+                        ...responseData
                     });
 
                 } catch (error) {
@@ -394,13 +484,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             const campaign = window.utmGclidData;
             console.log(`Product ${productId} added to cart with campaign data:`, campaign);
             
-            // Push GA4 event for add to cart with campaign data
-            gtag('event', 'add_to_cart', {
+            const cartData = {
                 'event_category': 'ecommerce',
                 'event_label': `Product ${productId}`,
                 'value': productId === 1 ? 199.99 : productId === 2 ? 24.99 : 39.99,
                 'utm_source': campaign.utm_source || 'direct',
                 'utm_campaign': campaign.utm_campaign || 'none'
+            };
+
+            // Push to both gtag and dataLayer
+            gtag('event', 'add_to_cart', cartData);
+            window.dataLayer.push({
+                'event': 'add_to_cart',
+                ...cartData
             });
             
             alert(`Product ${productId} has been added to your cart! (Campaign: ${campaign.utm_campaign || 'Direct'})`);
@@ -465,3 +561,4 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </script>
 </body>
 </html>
+
